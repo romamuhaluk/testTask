@@ -168,6 +168,12 @@ void gaussGF2(std::vector<std::vector<bool>>& mat, std::vector<bool>& result, ui
 // Main function to open the box
 bool openBox(uint32_t y, uint32_t x)
 {
+    if (y < x) {
+        uint32_t temp = y;
+        y = x;
+        x = temp;
+    }
+
     SecureBox box(y, x);
 
     std::vector<std::vector<bool>> mat(y, std::vector<bool>(x, 0));
@@ -207,12 +213,7 @@ int main(int argc, char* argv[])
     uint32_t y = std::atol(argv[1]);
     uint32_t x = std::atol(argv[2]);
 
-    bool state;
-
-    if (y < x)
-        state = openBox(x, y);
-    else
-        state = openBox(y, x);
+    bool state = openBox(x, y);
 
     if (state)
         std::cout << "BOX: LOCKED!" << std::endl;
