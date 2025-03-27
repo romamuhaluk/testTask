@@ -206,7 +206,13 @@ int main(int argc, char* argv[])
 {
     uint32_t y = std::atol(argv[1]);
     uint32_t x = std::atol(argv[2]);
-    bool state = openBox(y, x);
+
+    bool state;
+
+    if (y < x)
+        state = openBox(x, y);
+    else
+        state = openBox(y, x);
 
     if (state)
         std::cout << "BOX: LOCKED!" << std::endl;
