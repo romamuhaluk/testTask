@@ -108,10 +108,10 @@ private:
 //              the box is successfully unlocked, or true if any cell remains locked.
 //================================================================================
 
-// Метод Гауса для вирішення системи рівнянь у полі GF(2)
+// Gaussian method for solving a system of equations in the field GF(2)
 void gaussGF2(std::vector<std::vector<bool>>& mat, std::vector<bool>& result, uint32_t rows, uint32_t cols)
 {
-    // Перетворення на верхню трикутну матрицю
+    // Convert to upper triangular matrix
     for (uint32_t col = 0; col < cols; ++col)
     {
         uint32_t rowToSwap = col;
@@ -125,9 +125,9 @@ void gaussGF2(std::vector<std::vector<bool>>& mat, std::vector<bool>& result, ui
         }
 
         if (mat[rowToSwap][col] == 0)
-            continue; // Якщо в стовпці немає 1, пропускаємо стовпець
+            continue; // Skip column if there is no 1 in it
 
-        // Обмінюємо рядки
+        // Swap rows
         if (rowToSwap != col)
         {
             for (uint32_t j = 0; j < mat[0].size(); ++j)
@@ -142,30 +142,30 @@ void gaussGF2(std::vector<std::vector<bool>>& mat, std::vector<bool>& result, ui
             result[col] = tempResult;
         }
 
-        // Застосовуємо XOR для всіх нижчих рядків, щоб знищити елементи в стовпці
+        // Apply XOR to all lower rows to eliminate elements in the column
         for (uint32_t row = col + 1; row < rows; ++row)
         {
             if (mat[row][col])
             {
                 for (uint32_t j = col; j < cols; ++j)
-                    mat[row][j] = mat[row][j] ^ mat[col][j]; // XOR рядка
-                result[row] = result[row] ^ result[col]; // XOR правої частини
+                    mat[row][j] = mat[row][j] ^ mat[col][j]; // XOR row
+                result[row] = result[row] ^ result[col]; // XOR right-hand side
             }
         }
     }
 
-    // Зворотна підстановка
+    // Back substitution
     for (int32_t row = rows - 1; row >= 0; --row)
     {
         for (uint32_t col = row + 1; col < cols; ++col)
         {
             if (mat[row][col])
-                result[row] = result[row] ^ result[col]; // XOR правої частини
+                result[row] = result[row] ^ result[col]; // XOR right-hand side
         }
     }
 }
 
-// Основна функція для відкриття коробки
+// Main function to open the box
 bool openBox(uint32_t y, uint32_t x)
 {
     SecureBox box(y, x);
@@ -173,33 +173,33 @@ bool openBox(uint32_t y, uint32_t x)
     std::vector<std::vector<bool>> mat(y, std::vector<bool>(x, 0));
     std::vector<bool> result(y, 0);
 
-    // Створюємо матрицю залежностей з поточного стану коробки
+    // Create a matrix of dependencies from the current state of the box
     for (uint32_t i = 0; i < y; ++i)
     {
         for (uint32_t j = 0; j < x; ++j)
         {
             if (box.getState()[i][j])
-                mat[i][j] = 1;  // Якщо клітинка заблокована, ставимо 1
+                mat[i][j] = 1;  // If the cell is locked, set it to 1
         }
     }
 
-    // Використовуємо метод Гауса для вирішення системи рівнянь у GF(2)
+    // Use the Gaussian method to solve the system of equations in GF(2)
     gaussGF2(mat, result, y, x);
 
-    // Застосовуємо перемикання для клітинок, де результат == 1
+    // Apply toggling for cells where the result == 1
     for (uint32_t i = 0; i < y; ++i)
     {
         if (result[i] == 1)
         {
             for (uint32_t j = 0; j < x; ++j)
             {
-                box.toggle(i, j);  // Перемикаємо всі клітинки в рядку
+                box.toggle(i, j);  // Toggle all cells in the row
             }
         }
     }
 
-    // Перевіряємо, чи розблоковано контейнер
-    return !box.isLocked();  // Повертаємо true, якщо коробка розблокована
+    // Check if the container is unlocked
+    return !box.isLocked();  // Return true if the box is unlocked
 }
 
 int main(int argc, char* argv[])
@@ -215,4 +215,3 @@ int main(int argc, char* argv[])
 
     return state;
 }
-
